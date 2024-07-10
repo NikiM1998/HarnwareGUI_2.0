@@ -10,4 +10,9 @@
 	<ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Krypton.Toolkit" Version="85.24.6.176" />
+    <PackageReference Include="Npgsql" Version="8.0.3" />
+  </ItemGroup>
+
 </Project>
