@@ -37,25 +37,31 @@ namespace HarnwareGUI
 
                 string username = txtbxUserName.Text;
                 string password = txtbxPassword.Text;
-                string? storedMaskedPassword = GetPassword(connectionString);
-                if (storedMaskedPassword == null)
+                // Modify the query to select user_id and password
+                using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT user_id, password FROM public.users WHERE username = @username;", conn))
                 {
-                    return false;
-                }
-                else
-                {
-                    string storedUnmaskedPassword = new DataMasking().UnmaskData(storedMaskedPassword);
+                    cmd.Parameters.AddWithValue("username", username);
 
-                    if (String.Compare(storedUnmaskedPassword, password) == 0)
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     {
-                        Globals.User = username;
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
+                        if (reader.Read())
+                        {
+                            int userId = reader.GetInt32(0); // get the user_id
+                            string storedMaskedPassword = reader.GetString(1); // get the password
+
+                            string storedUnmaskedPassword = new DataMasking().UnmaskData(storedMaskedPassword);
+
+                            if (String.Compare(storedUnmaskedPassword, password) == 0)
+                            {
+                                Globals.User = username;
+                                Globals.UserId = userId; // store the user_id in Globals.UserId
+                                return true;
+                            }
+                        }
                     }
                 }
+
+                return false;
             }
         }
 
